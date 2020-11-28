@@ -1,0 +1,41 @@
+version: "3.3"
+
+services:
+        mysql:
+                container_name: "laravel_mysql"
+                image: laravel_mysql
+                build: 
+                        context: ./mysql
+                        args: 
+                                MYSQL_VERSION: ${MYSQL_VERSION}
+                restart: always
+                command: --default-authentication-plugin=mysql_native_password
+                environment:
+                        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+                        MYSQL_DATABASE: ${MYSQL_DATABASE}
+                        MYSQL_USER: ${MYSQL_USER}
+                        MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+                volumes:
+                        - ./volume/db:/var/lib/mysql
+                ports:
+                        - "3306:3306"  
+                networks:
+                        - backend
+        php:
+                container_name: "laravel_apache2"
+                restart: always
+                image: laravel_apache2
+                build: 
+                        context: ./php_apache
+                        args: 
+                                PHP_VERSION: ${PHP_VERSION}
+                volumes:
+                        - ./volume/app:/var/www
+                        - ./volume/app/public:/var/www/html
+                        - ./volume/apache2/sites-enabled:/etc/apache2/sites-enabled
+                networks:
+                        - backend
+                ports:
+                        - '80:80'
+networks:
+  backend:
